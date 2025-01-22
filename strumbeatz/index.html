@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Lighting Console</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #121212;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1E1E1E;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(45deg, #FF4D4D, #FF8B4D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 77, 77, 0.3);
+        }
+
+        p {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #fff;
+            margin: 30px 0 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        /* Color buttons */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .color-btn {
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+
+        .color-btn:hover::before {
+            transform: translateX(0);
+        }
+
+        .color-btn.active {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .color-btn.active::after {
+            content: '✓';
+            position: absolute;
+            right: 15px;
+            font-size: 20px;
+        }
+
+        #red {
+            background: linear-gradient(45deg, #FF0000, #FF5555);
+            color: white;
+        }
+
+        #blue {
+            background: linear-gradient(45deg, #0000FF, #5555FF);
+            color: white;
+        }
+
+        #green {
+            background: linear-gradient(45deg, #00FF00, #55FF55);
+            color: black;
+        }
+
+        #pink {
+            background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+            color: black;
+        }
+
+        #yellow {
+            background: linear-gradient(45deg, #FFD700, #FFF68F);
+            color: black;
+        }
+
+        #orange {
+            background: linear-gradient(45deg, #FFA500, #FFD700);
+            color: black;
+        }
+
+        /* Effect buttons */
+        .effect-btn {
+            background: #2D2D2D;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .effect-btn:hover {
+            background: #3D3D3D;
+            transform: translateY(-2px);
+        }
+
+        .effect-btn.active {
+            background: #4CAF50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Control buttons */
+        .control-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        /* Crowd sections */
+        .crowd-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .section {
+            aspect-ratio: 16/9;
+            background: #2D2D2D;
+            border: 3px solid #333;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            position: relative;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .section.active {
+            border-color: #4CAF50;
+            color: white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .section.active::after {
+            content: 'ACTIVE';
+            position: absolute;
+            bottom: 10px;
+            font-size: 12px;
+            color: #4CAF50;
+        }
+
+        #status {
+            margin-top: 30px;
+            padding: 15px;
+            text-align: center;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 10px;
+            display: none;
+            color: #4CAF50;
+        }
+
+        #status.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Active effect animation */
+        @keyframes activeGlow {
+            0% {
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            }
+        }
+
+        .active-glow {
+            animation: activeGlow 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>DJ Lighting Console</h1>
+        <p>Select sections and apply effects to control crowd lighting</p>
+
+        <h2>Colors</h2>
+        <div class="button-grid">
+            <button class="color-btn" id="red">Red</button>
+            <button class="color-btn" id="blue">Blue</button>
+            <button class="color-btn" id="green">Green</button>
+            <button class="color-btn" id="pink">Pink</button>
+            <button class="color-btn" id="yellow">Yellow</button>
+            <button class="color-btn" id="orange">Orange</button>
+        </div>
+
+        <h2>Effects</h2>
+        <div class="button-grid">
+            <button class="effect-btn" data-effect="strobe">Strobe</button>
+            <button class="effect-btn" data-effect="pulse">Color Pulse</button>
+            <button class="effect-btn" data-effect="wave">Wave</button>
+            <button class="effect-btn" data-effect="sparkle">Sparkle</button>
+        </div>
+
+        <h2>Global Controls</h2>
+        <div class="button-grid">
+            <button class="control-btn" id="selectAll">Select All</button>
+            <button class="control-btn" id="resetAll">Reset All</button>
+        </div>
+
+        <h2>Crowd Sections</h2>
+        <div class="crowd-container">
+            <div class="section" data-section="1">1</div>
+            <div class="section" data-section="2">2</div>
+            <div class="section" data-section="3">3</div>
+            <div class="section" data-section="4">4</div>
+            <div class="section" data-section="5">5</div>
+            <div class="section" data-section="6">6</div>
+            <div class="section" data-section="7">7</div>
+            <div class="section" data-section="8">8</div>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('.section');
+        const colorButtons = document.querySelectorAll('.color-btn');
+        const effectButtons = document.querySelectorAll('.effect-btn');
+        const selectAllBtn = document.getElementById('selectAll');
+        const resetAllBtn = document.getElementById('resetAll');
+        const statusDisplay = document.getElementById('status');
+
+        let activeEffect = null;
+        let effectInterval = null;
+        let activeColor = null;
+
+        // Section selection
+        sections.forEach(section => {
+            section.addEventListener('click', () => {
+                section.classList.toggle('active');
+                if (section.classList.contains('active')) {
+                    if (activeColor) {
+                        section.style.backgroundColor = activeColor;
+                    }
+                    section.classList.add('active-glow');
+                } else {
+                    section.style.backgroundColor = '';
+                    section.classList.remove('active-glow');
+                }
+            });
+        });
+
+        // Color control
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                activeColor = getComputedStyle(button).background;
+                document.querySelectorAll('.section.active').forEach(section => {
+                    section.style.backgroundColor = activeColor;
+                });
+            });
+        });
+
+        function stopEffect() {
+            if (effectInterval) {
+                clearInterval(effectInterval);
+                effectInterval = null;
+            }
+            activeEffect = null;
+            effectButtons.forEach(btn => btn.classList.remove('active'));
+            statusDisplay.classList.remove('active');
+        }
+
+        const effects = {
+            strobe: () => {
+                let isOn = true;
+                return setInterval(() => {
+                    document.querySelectorAll('.section.active').forEach(section => {
+                        section.style.backgroundColor = isOn ? '#FFF' : '#000';
+                    });
+                    isOn = !isOn;
+                }, 100);
+            },
+
+            pulse: () => {
+                let hue = 0;
+                return setInterval(() => {
+                    document.querySelectorAll('.section.active').forEach(section => {
+                        section.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+                    });
+                    hue = (hue + 2) % 360;
+                }, 50);
+            },
+
+            wave: () => {
+                let phase = 0;
+                return setInterval(() => {
+                    document.querySelectorAll('.section.active').forEach((section, index) => {
+                        const offset = index * (Math.PI / 6);
+                        const brightness = Math.sin(phase + offset) * 50 + 50;
+                        section.style.backgroundColor = `hsl(200, 100%, ${brightness}%)`;
+                    });
+                    phase += 0.1;
+                }, 50);
+            },
+
+            sparkle: () => {
+                return setInterval(() => {
+                    document.querySelectorAll('.section.active').forEach(section => {
+                        if (Math.random() > 0.5) {
+                            const hue = Math.random() * 360;
+                            section.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+                        } else {
+                            section.style.backgroundColor = '#2D2D2D';
+                        }
+                    });
+                }, 100);
+            }
+        };
+
+        // Effect button handling
+        effectButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const effect = button.dataset.effect;
+
+                if (effect === activeEffect) {
+                    stopEffect();
+                    return;
+                }
+
+                stopEffect();
+                activeEffect = effect;
+                button.classList.add('active');
+                effectInterval = effects[effect]();
+                statusDisplay.textContent = `Active Effect: ${effect}`;
+                statusDisplay.classList.add('active');
+            });
+        });
+
+        // Global controls
+        selectAllBtn.addEventListener('click', () => {
+            sections.forEach(section => {
+                section.classList.add('active', 'active-glow');
+                if (activeColor) {
+                    section.style.backgroundColor = activeColor;
+                }
+            });
+        });
+
+        resetAllBtn.addEventListener('click', () => {
+            stopEffect();
+            sections.forEach(section => {
+                section.classList.remove('active', 'active-glow');
+                section.style.backgroundColor = '';
+            });
+            colorButtons.forEach(btn => btn.classList.remove('active'));
+            activeColor = null;
+            statusDisplay.classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>
